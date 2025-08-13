@@ -27,7 +27,7 @@ const content = {
           "text": "Sowsnek"
         }
       },
-      "intro": "Yew, <b>Siobhan</b> ov vy!"
+      "intro": "Yew, <b>Siobhan</b> ov vy!<br/>gwias ha studhyores robotek ov vy."
     }
   }
 }
@@ -37,51 +37,40 @@ const content = {
   Content
 ============================================================*/
 
+// Variables
+let currentLang = localStorage.getItem('lang');
+const template = document.createElement('template');
+const lang = document.querySelector('.lang');
+const intro = document.querySelector('.intro');
+
 /* Language
 ======================================== */
 const language = localStorage.getItem('lang');
 
-// Set default language
+// Initialize language
 if (!language) {
   localStorage.setItem("lang", "kw");
 }
 
-
-
-// Get Lang and add content
-let currentLang = localStorage.getItem('lang');
-const template = document.createElement('template');
-
-// console.log(typeof currentLang);
-// console.log(typeof content.language[currentLang]);
-
-for (const [key, value] of Object.entries(content.language[currentLang])) {
-
-  // Add Buttons
-  if (key == "buttons") {
-    const lang = document.querySelector('.lang');
-    for (const [k, v] of Object.entries(value)) {
-      template.innerHTML = `
-        <button data-lang="${v.code}">${v.text}</button>
-      `;
-      lang.appendChild(template.content);
-    }
-  }
-
-  // Add intro
-  if (key == "intro") {
-    const intro = document.querySelector('.intro');
-    template.innerHTML = value;
-    intro.appendChild(template.content);
-  }
-}
-
+// Render body content
+body(content.language[currentLang]);
 
 // Change Language
-const langButtons = document.querySelectorAll('.lang > button');
+let langButtons = document.querySelectorAll('.lang > button');
+
 [].forEach.call(langButtons, el => {
   el.addEventListener('click', function() {
+
+    currentLang = el.getAttribute('data-lang');
     localStorage.setItem('lang', el.getAttribute('data-lang'));
+    console.log(`Language now set to: ${currentLang}`);
+
+    // Clear previous content
+    lang.innerHTML = '';
+    intro.innerHTML = '';
+
+    // Render content with updated language
+    body(content.language[currentLang]);
 
     // Add active styling to current language
     // [].forEach.call(langButtons, e => {
@@ -95,4 +84,26 @@ const langButtons = document.querySelectorAll('.lang > button');
 });
 
 
-// Refresh page after language change
+/* FUNCTION : Body Content
+======================================== */
+function body(chosenLang) {
+  for (const [key, value] of Object.entries(chosenLang)) {
+
+    // Add Buttons
+    if (key == "buttons") {
+      for (const v of Object.values(value)) {
+        template.innerHTML = `
+          <button data-lang="${v.code}">${v.text}</button>
+        `;
+        lang.appendChild(template.content);
+      }
+    }
+
+    // Add intro
+    if (key == "intro") {
+      template.innerHTML = value;
+      intro.appendChild(template.content);
+    }
+
+  }
+}
